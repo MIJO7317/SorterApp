@@ -1,4 +1,4 @@
-#include "MainForm.h"
+Ôªø#include "MainForm.h"
 #include "Containers.h"
 #include <Windows.h>
 #include <vector>
@@ -15,21 +15,21 @@ using namespace System::Collections::Concurrent;
 using namespace System::Windows::Forms::DataVisualization::Charting;
 using namespace System::Threading;
 
-using PointNT = SorterApp::PointNT; //“Ó˜Í‡ Ì‡ „ÙËÍÂ Á‡‚ËÒËÏÓÒÚË T ÓÚ N
-using Points = SorterApp::Points; //Ã‡ÒÒË‚ ÚÓ˜ÂÍ PointNT
-using NamedPoints = SorterApp::NamedPoints; //œ‡‡ ÚÓ˜ÂÍ Points Ë ËÏÂÌË
-using PairOfIndexes = SorterApp::PairOfIndexes; //œ‡‡ ËÌ‰ÂÍÒÓ‚
+using PointNT = SorterApp::PointNT; //–¢–æ—á–∫–∞ –Ω–∞ –≥—Ä—Ñ–∏–∫–µ –∑–∞–≤–∏—Å–∏–º–æ—Å—Ç–∏ T –æ—Ç N
+using Points = SorterApp::Points; //–ú–∞—Å—Å–∏–≤ —Ç–æ—á–µ–∫ PointNT
+using NamedPoints = SorterApp::NamedPoints; //–ü–∞—Ä–∞ —Ç–æ—á–µ–∫ Points –∏ –∏–º–µ–Ω–∏
+using PairOfIndexes = SorterApp::PairOfIndexes; //–ü–∞—Ä–∞ –∏–Ω–¥–µ–∫—Å–æ–≤
 
-constexpr double sorting_delay = 100; //«‡‰ÂÊÍ‡ ÒÓÚËÓ‚ÍË
-constexpr double shuffle_delay = 20; //«‡‰ÂÊÍ‡ ÔÂÂÏÂ¯Ë‚‡ÌËˇ
-constexpr size_t number_columns = 31; // ÓÎË˜ÂÒÚ‚Ó ÍÓÎÓÌÓÍ ‚ ‚ËÁÛ‡ÎËÁ‡ˆËË ÒÓÚËÓ‚ÓÍ
-constexpr size_t number_of_swaps = 2*number_columns; // ÓÎË˜ÂÒÚ‚Ó ÔÂÂÒÚ‡ÌÓ‚ÓÍ ÔË ÔÂÂÏÂ¯Ë‚‡ÌËË
-size_t N_graph; //œÓÒÎÂ‰ÌÂÂ ÁÌ‡˜ÂÌËÂ Ì‡ „‡ÙËÍÂ
-size_t step; //ÿ‡„ Ò ÍÓÚÓ˚Ï ÏÂÌˇÂÚÒˇ n Ì‡ „‡ÙËÍÂ
-constexpr double step_size = 0.1; //¬ÂÎË˜ËÌ‡ ¯‡„‡ ‚ ˜‡ÒÚˇı ÓÚ N_graph
-constexpr size_t n0 = 0; //œÂ‚ÓÂ ÁÌ‡˜ÂÌËÂ Ì‡ „‡ÙËÍÂ
-constexpr size_t width_graph_line = 2; //ÿËËÌ‡ ÎËÌËË „‡ÙËÍ‡
-Point start_position_columns; //Õ‡˜‡Î¸Ì‡ˇ ÔÓÁËˆËˇ, Ò ÍÓÚÓÓÈ Ì‡˜ËÌ‡˛Ú ÒÚÓËÚ¸Òˇ ÍÓÎÓÌÍË
+constexpr double sorting_delay = 100; //–ó–∞–¥–µ—Ä–∂–∫–∞ —Å–æ—Ä—Ç–∏—Ä–æ–≤–∫–∏
+constexpr double shuffle_delay = 20; //–ó–∞–¥–µ—Ä–∂–∫–∞ –ø–µ—Ä–µ–º–µ—à–∏–≤–∞–Ω–∏—è
+constexpr size_t number_columns = 31; //–ö–æ–ª–∏—á–µ—Å—Ç–≤–æ –∫–æ–ª–æ–Ω–æ–∫ –≤ –≤–∏–∑—É–∞–ª–∏–∑–∞—Ü–∏–∏ —Å–æ—Ä—Ç–∏—Ä–æ–≤–æ–∫
+constexpr size_t number_of_swaps = 2*number_columns; //–ö–æ–ª–∏—á–µ—Å—Ç–≤–æ –ø–µ—Ä–µ—Å—Ç–∞–Ω–æ–≤–æ–∫ –ø—Ä–∏ –ø–µ—Ä–µ–º–µ—à–∏–≤–∞–Ω–∏–∏
+size_t N_graph; //–ü–æ—Å–ª–µ–¥–Ω–µ–µ –∑–Ω–∞—á–µ–Ω–∏–µ –Ω–∞ –≥—Ä–∞—Ñ–∏–∫–µ
+size_t step; //–®–∞–≥ —Å –∫–æ—Ç–æ—Ä—ã–º –º–µ–Ω—è–µ—Ç—Å—è n –Ω–∞ –≥—Ä–∞—Ñ–∏–∫–µ
+constexpr double step_size = 0.1; //–í–µ–ª–∏—á–∏–Ω–∞ —à–∞–≥–∞ –≤ —á–∞—Å—Ç—è—Ö –æ—Ç N_graph
+constexpr size_t n0 = 0; //–ü–µ—Ä–≤–æ–µ –∑–Ω–∞—á–µ–Ω–∏–µ –Ω–∞ –≥—Ä–∞—Ñ–∏–∫–µ
+constexpr size_t width_graph_line = 2; //–®–∏—Ä–∏–Ω–∞ –ª–∏–Ω–∏–∏ –≥—Ä–∞—Ñ–∏–∫–∞
+Point start_position_columns; //–ù–∞—á–∞–ª—å–Ω–∞—è –ø–æ–∑–∏—Ü–∏—è, —Å –∫–æ—Ç–æ—Ä–æ–π –Ω–∞—á–∏–Ω–∞—é—Ç —Å—Ç—Ä–æ–∏—Ç—å—Å—è –∫–æ–ª–æ–Ω–∫–∏
 
 bool graph_exit = false;
 
@@ -132,32 +132,32 @@ System::Void SorterApp::MainForm::MenuSortingVisualizationButton_Click(System::O
     this->page_home->Visible = false;
     this->page_comparison->Visible = false;
     this->page_sorting_visualization->Visible = true;
-    this->menu_sorting_visualization_button->BackColor = Color::MediumSeaGreen; //œÓÍ‡Á˚‚‡ÂÏ ˆ‚ÂÚÓÏ ‡ÍÚË‚ÌÓÒÚ¸ ÍÌÓÔÍË
-    this->menu_comparison_button->BackColor = Color::FromArgb(219, 199, 172); //œÓÍ‡Á˚‚‡ÂÏ ˆ‚ÂÚÓÏ ÌÂ ‡ÍÚË‚ÌÓÒÚ¸ ÍÌÓÔÍË
+    this->menu_sorting_visualization_button->BackColor = Color::MediumSeaGreen; //–ü–æ–∫–∞–∑—ã–≤–∞–µ–º —Ü–≤–µ—Ç–æ–º –∞–∫—Ç–∏–≤–Ω–æ—Å—Ç—å –∫–Ω–æ–ø–∫–∏
+    this->menu_comparison_button->BackColor = Color::FromArgb(219, 199, 172); //–ü–æ–∫–∞–∑—ã–≤–∞–µ–º —Ü–≤–µ—Ç–æ–º –Ω–µ –∞–∫—Ç–∏–≤–Ω–æ—Å—Ç—å –∫–Ω–æ–ø–∫–∏
 }
 System::Void SorterApp::MainForm::MenuComparisonButton_Click(System::Object^ sender, System::EventArgs^ e)
 {
     this->page_home->Visible = false;
     this->page_sorting_visualization->Visible = false;
     this->page_comparison->Visible = true;
-    this->menu_sorting_visualization_button->BackColor = Color::FromArgb(219, 199, 172); //œÓÍ‡Á˚‚‡ÂÏ ˆ‚ÂÚÓÏ ÌÂ ‡ÍÚË‚ÌÓÒÚ¸ ÍÌÓÔÍË
-    this->menu_comparison_button->BackColor = Color::MediumSeaGreen; //œÓÍ‡Á˚‚‡ÂÏ ˆ‚ÂÚÓÏ ‡ÍÚË‚ÌÓÒÚ¸ ÍÌÓÔÍË
+    this->menu_sorting_visualization_button->BackColor = Color::FromArgb(219, 199, 172); //–ü–æ–∫–∞–∑—ã–≤–∞–µ–º —Ü–≤–µ—Ç–æ–º –Ω–µ –∞–∫—Ç–∏–≤–Ω–æ—Å—Ç—å –∫–Ω–æ–ø–∫–∏
+    this->menu_comparison_button->BackColor = Color::MediumSeaGreen; //–ü–æ–∫–∞–∑—ã–≤–∞–µ–º —Ü–≤–µ—Ç–æ–º –∞–∫—Ç–∏–≤–Ω–æ—Å—Ç—å –∫–Ω–æ–ø–∫–∏
 }
 System::Void SorterApp::MainForm::Heading_Click(System::Object^ sender, System::EventArgs^ e)
 {
     this->page_sorting_visualization->Visible = false;
     this->page_comparison->Visible = false;
     this->page_home->Visible = true;
-    this->menu_sorting_visualization_button->BackColor = Color::FromArgb(219, 199, 172); //œÓÍ‡Á˚‚‡ÂÏ ˆ‚ÂÚÓÏ ÌÂ ‡ÍÚË‚ÌÓÒÚ¸ ÍÌÓÔÍË
-    this->menu_comparison_button->BackColor = Color::FromArgb(219, 199, 172); //œÓÍ‡Á˚‚‡ÂÏ ˆ‚ÂÚÓÏ ÌÂ ‡ÍÚË‚ÌÓÒÚ¸ ÍÌÓÔÍË
+    this->menu_sorting_visualization_button->BackColor = Color::FromArgb(219, 199, 172); //–ü–æ–∫–∞–∑—ã–≤–∞–µ–º —Ü–≤–µ—Ç–æ–º –Ω–µ –∞–∫—Ç–∏–≤–Ω–æ—Å—Ç—å –∫–Ω–æ–ø–∫–∏
+    this->menu_comparison_button->BackColor = Color::FromArgb(219, 199, 172); //–ü–æ–∫–∞–∑—ã–≤–∞–µ–º —Ü–≤–µ—Ç–æ–º –Ω–µ –∞–∫—Ç–∏–≤–Ω–æ—Å—Ç—å –∫–Ω–æ–ø–∫–∏
 }
 System::Void SorterApp::MainForm::Logo_Click(System::Object^ sender, System::EventArgs^ e)
 {
     this->page_sorting_visualization->Visible = false;
     this->page_comparison->Visible = false;
     this->page_home->Visible = true;
-    this->menu_sorting_visualization_button->BackColor = Color::FromArgb(219, 199, 172); //œÓÍ‡Á˚‚‡ÂÏ ˆ‚ÂÚÓÏ ÌÂ ‡ÍÚË‚ÌÓÒÚ¸ ÍÌÓÔÍË
-    this->menu_comparison_button->BackColor = Color::FromArgb(219, 199, 172); //œÓÍ‡Á˚‚‡ÂÏ ˆ‚ÂÚÓÏ ÌÂ ‡ÍÚË‚ÌÓÒÚ¸ ÍÌÓÔÍË
+    this->menu_sorting_visualization_button->BackColor = Color::FromArgb(219, 199, 172); //–ü–æ–∫–∞–∑—ã–≤–∞–µ–º —Ü–≤–µ—Ç–æ–º –Ω–µ –∞–∫—Ç–∏–≤–Ω–æ—Å—Ç—å –∫–Ω–æ–ø–∫–∏
+    this->menu_comparison_button->BackColor = Color::FromArgb(219, 199, 172); //–ü–æ–∫–∞–∑—ã–≤–∞–µ–º —Ü–≤–µ—Ç–æ–º –Ω–µ –∞–∫—Ç–∏–≤–Ω–æ—Å—Ç—å –∫–Ω–æ–ø–∫–∏
 }
 //Menu_end
 
@@ -170,17 +170,17 @@ System::Void SorterApp::MainForm::SortButton_Click(System::Object^ sender, Syste
 {
     if (this->thread_with_state_shuffling_columns->Item1->ThreadState == ThreadState::Running)
     {
-        //ƒÂÎ‡ÂÏ ÔÓÚÓÍ ÌÂ ‡ÍÚË‚Ì˚Ï
+        //–î–µ–ª–∞–µ–º –ø–æ—Ç–æ–∫ –Ω–µ –∞–∫—Ç–∏–≤–Ω—ã–º
         this->thread_with_state_shuffling_columns = gcnew Tuple<Thread^, bool>(this->thread_with_state_shuffling_columns->Item1, false);
         return;
     }
     if (this->thread_with_state_sorting_columns->Item1->ThreadState == ThreadState::Running)
     {
-        //ƒÂÎ‡ÂÏ ÔÓÚÓÍ ÌÂ ‡ÍÚË‚Ì˚Ï
+        //–î–µ–ª–∞–µ–º –ø–æ—Ç–æ–∫ –Ω–µ –∞–∫—Ç–∏–≤–Ω—ã–º
         this->thread_with_state_sorting_columns = gcnew Tuple<Thread^, bool>(this->thread_with_state_sorting_columns->Item1, false);
         return;
     }
-    //—ÓÁ‰‡ÂÏ ÔÓÚÓÍ Ë ‰ÂÎ‡ÂÏ Â„Ó ‡ÍÚË‚Ì˚Ï
+    //–°–æ–∑–¥–∞–µ–º –ø–æ—Ç–æ–∫ –∏ –¥–µ–ª–∞–µ–º –µ–≥–æ –∞–∫—Ç–∏–≤–Ω—ã–º
     if (this->thread_with_state_sorting_columns->Item1->ThreadState == ThreadState::Stopped)
         this->thread_with_state_sorting_columns = gcnew Tuple<Thread^, bool>(gcnew Thread(gcnew ThreadStart(this, &SorterApp::MainForm::SortColumns)), true);
     this->thread_with_state_sorting_columns->Item1->Start();
@@ -191,17 +191,17 @@ System::Void SorterApp::MainForm::ShuffleButton_Click(System::Object^ sender, Sy
 {
     if (this->thread_with_state_shuffling_columns->Item1->ThreadState == ThreadState::Running)
     {
-        //ƒÂÎ‡ÂÏ ÔÓÚÓÍ ÌÂ ‡ÍÚË‚Ì˚Ï
+        //–î–µ–ª–∞–µ–º –ø–æ—Ç–æ–∫ –Ω–µ –∞–∫—Ç–∏–≤–Ω—ã–º
         this->thread_with_state_shuffling_columns = gcnew Tuple<Thread^, bool>(this->thread_with_state_shuffling_columns->Item1, false);
         return;
     }
     if (this->thread_with_state_sorting_columns->Item1->ThreadState == ThreadState::Running)
     {
-        //ƒÂÎ‡ÂÏ ÔÓÚÓÍ ÌÂ ‡ÍÚË‚Ì˚Ï
+        //–î–µ–ª–∞–µ–º –ø–æ—Ç–æ–∫ –Ω–µ –∞–∫—Ç–∏–≤–Ω—ã–º
         this->thread_with_state_sorting_columns = gcnew Tuple<Thread^, bool>(this->thread_with_state_sorting_columns->Item1, false);
         return;
     }
-    //—ÓÁ‰‡ÂÏ ÔÓÚÓÍ Ë ‰ÂÎ‡ÂÏ Â„Ó ‡ÍÚË‚Ì˚Ï
+    //–°–æ–∑–¥–∞–µ–º –ø–æ—Ç–æ–∫ –∏ –¥–µ–ª–∞–µ–º –µ–≥–æ –∞–∫—Ç–∏–≤–Ω—ã–º
     if (this->thread_with_state_shuffling_columns->Item1->ThreadState == ThreadState::Stopped)
         this->thread_with_state_shuffling_columns = gcnew Tuple<Thread^, bool>(gcnew Thread(gcnew ThreadStart(this, &SorterApp::MainForm::ShuffleColumns)), true);
     this->thread_with_state_shuffling_columns->Item1->Start();
@@ -278,7 +278,7 @@ void SorterApp::MainForm::SortColumns()
     for (size_t i = 0; i < this->columns.Count; i++)
         heights.Append(this->columns[i]->Size.Height);
     Containers::Sorter<int>* selected_sorter = sorters_copy[this->combo_box_sorts->SelectedIndex];
-    selected_sorter->SortWithSwaps(heights); //—ÓÚËÛÂÏ heights
+    selected_sorter->SortWithSwaps(heights); //–°–æ—Ä—Ç–∏—Ä—É–µ–º heights
     std::vector<std::pair<size_t, size_t>> swaps = selected_sorter->GetSwaps();
     for (auto sort : sorters_copy)
         delete sort;
@@ -294,7 +294,7 @@ void SorterApp::MainForm::SortColumns()
         this->columns[first_index] = this->columns[second_index];
         this->columns[second_index] = buffer;
         if (this->thread_with_state_sorting_columns->Item2 == false)
-            this->thread_with_state_sorting_columns->Item1->Abort(); //œËÌÛ‰ËÚÂÎ¸ÌÓ Á‡‚Â¯‡ÂÏ ÔÓÚÓÍ
+            this->thread_with_state_sorting_columns->Item1->Abort(); //–ü—Ä–∏–Ω—É–¥–∏—Ç–µ–ª—å–Ω–æ –∑–∞–≤–µ—Ä—à–∞–µ–º –ø–æ—Ç–æ–∫
     }
 }
 void SorterApp::MainForm::ShuffleColumns()
@@ -312,7 +312,7 @@ void SorterApp::MainForm::ShuffleColumns()
         this->columns[j] = this->columns[k];
         this->columns[k] = buffer;
         if (this->thread_with_state_shuffling_columns->Item2 == false)
-            this->thread_with_state_shuffling_columns->Item1->Abort(); //œËÌÛ‰ËÚÂÎ¸ÌÓ Á‡‚Â¯‡ÂÏ ÔÓÚÓÍ
+            this->thread_with_state_shuffling_columns->Item1->Abort(); //–ü—Ä–∏–Ω—É–¥–∏—Ç–µ–ª—å–Ω–æ –∑–∞–≤–µ—Ä—à–∞–µ–º –ø–æ—Ç–æ–∫
     }
 }
 //Shuffle and Sort columns _end
